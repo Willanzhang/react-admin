@@ -89,12 +89,14 @@ module.exports = {
     // for React Native Web.
     extensions: ['.web.js', '.js', '.json', '.web.jsx', '.jsx'],
     alias: {
-      
+      'static': path.resolve(__dirname, '../static'),
+      'src': path.resolve(__dirname, '../src'),
+      'components': path.resolve(__dirname, '../src/components'),
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
       'react-native': 'react-native-web',
-        // 全局相对路径别名，处理相对路径过长和繁琐问题
-        '@': paths.appSrc
+      // 全局相对路径别名，处理相对路径过长和繁琐问题
+      '@': paths.appSrc
     },
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -102,6 +104,10 @@ module.exports = {
       // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
       // please link the files into your node_modules/ and let module-resolution kick in.
       // Make sure your source files are compiled, as they will not be processed in any way.
+      new webpack.DllReferencePlugin({
+        context: __dirname,
+        manifest: require('./manifest.json'),
+      }),
       new ModuleScopePlugin(paths.appSrc),
     ],
   },
@@ -121,7 +127,7 @@ module.exports = {
           {
             options: {
               formatter: eslintFormatter,
-              
+
             },
             loader: require.resolve('eslint-loader'),
           },
@@ -171,45 +177,45 @@ module.exports = {
         include: paths.appSrc,
         loader: require.resolve('babel-loader'),
         options: {
-            plugins: [
-                ['import', [{ libraryName: 'antd', style: true }]],  // import less
-                'react-hot-loader/babel'
-            ],
+          plugins: [
+            ['import', [{ libraryName: 'antd', style: true }]],  // import less
+            'react-hot-loader/babel'
+          ],
           // This is a feature of `babel-loader` for webpack (not Babel itself).
           // It enables caching results in ./node_modules/.cache/babel-loader/
           // directory for faster rebuilds.
           cacheDirectory: true,
         },
       },
-          // Parse less files and modify variables
+      // Parse less files and modify variables
+      {
+        test: /\.less$/,
+        use: [
+          require.resolve('style-loader'),
+          require.resolve('css-loader'),
           {
-            test: /\.less$/,
-            use: [
-              require.resolve('style-loader'),
-              require.resolve('css-loader'),
-              {
-                loader: require.resolve('postcss-loader'),
-                options: {
-                  ident: 'postcss', // https://webpack.js.org/guides/migrating/#complex-options
-                      plugins: () => [
-                        require('postcss-flexbugs-fixes'),
-                        autoprefixer({
-                              browsers: [
-                            '>1%',
-                            'last 4 versions',
-                            'Firefox ESR',
-                            'not ie < 9', // React doesn't support IE8 anyway
-                          ],
-                          flexbox: 'no-2009',
-                        }),
+            loader: require.resolve('postcss-loader'),
+            options: {
+              ident: 'postcss', // https://webpack.js.org/guides/migrating/#complex-options
+              plugins: () => [
+                require('postcss-flexbugs-fixes'),
+                autoprefixer({
+                  browsers: [
+                    '>1%',
+                    'last 4 versions',
+                    'Firefox ESR',
+                    'not ie < 9', // React doesn't support IE8 anyway
                   ],
-                },
+                  flexbox: 'no-2009',
+                }),
+              ],
+            },
           },
           {
             loader: require.resolve('less-loader'),
-                options: {
-                  modifyVars: { "@primary-color": "#001529" },
-                },
+            options: {
+              modifyVars: { "@primary-color": "#001529" },
+            },
           },
         ],
       },

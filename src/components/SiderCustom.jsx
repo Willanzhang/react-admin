@@ -8,7 +8,7 @@ import { menus } from '../constants/menus';
 import SiderMenu from './SiderMenu';
 
 const { Sider } = Layout;
-
+console.log(menus, 'menus')
 class SiderCustom extends Component {
     state = {
         collapsed: false,
